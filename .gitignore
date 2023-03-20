@@ -1,0 +1,35 @@
+# Leiningen
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/lib/
+/classes/
+/target/
+/checkouts/
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+.lein-failures
+.lein-env
+.nrepl-port
+.cpcache/
+Leiningen.gitignore
+
+# Gradle, Maven and File-based format
+*.iml
+*.ipr
+*.iws
+
+# IntelliJ
+out/
+.idea/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties

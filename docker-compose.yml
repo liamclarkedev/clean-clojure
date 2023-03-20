@@ -1,0 +1,35 @@
+services:
+  database:
+    image: postgres:latest
+    container_name: database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: clean-clojure
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migrator:
+    image: flyway/flyway:latest
+    container_name: migrator
+    command: migrate
+    environment:
+      FLYWAY_URL: jdbc:postgresql://database:5432/clean-clojure
+      FLYWAY_USER: postgres
+      FLYWAY_PASSWORD: secret
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./resources/migration:/flyway/sql
+
+volumes:
+  postgres_data:
