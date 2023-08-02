@@ -1,0 +1,79 @@
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@3.2.5
+
+jobs:
+  test-coverage:
+    docker:
+      - image: cimg/clojure:1.11.1
+      - image: cimg/postgres:15.3
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: clean-clojure
+          POSTGRES_HOST_AUTH_METHOD: trust
+
+    environment:
+      LEIN_ROOT: "true"
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "project.clj" }}
+            - v1-dependencies-
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.7.0
+      - run:
+          name: Install Flyway
+          command: wget -qO- https://download.red-gate.com/maven/release/org/flywaydb/enterprise/flyway-commandline/$FLYWAY_VERSION/flyway-commandline-$FLYWAY_VERSION-linux-x64.tar.gz | tar -xvz && sudo ln -s `pwd`/flyway-$FLYWAY_VERSION/flyway /usr/local/bin
+          environment:
+            FLYWAY_VERSION: 9.21.1
+      - run: lein deps
+      - save_cache:
+          key: v1-dependencies-{{ checksum "project.clj" }}
+          paths:
+            - target
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Run Migrations
+          command: flyway migrate
+          environment:
+            FLYWAY_URL: jdbc:postgresql://localhost:5432/clean-clojure
+            FLYWAY_USER: postgres
+            FLYWAY_PASSWORD: secret
+            FLYWAY_CONNECT_RETRIES: 60
+            FLYWAY_LOCATIONS: filesystem:resources/migration
+      - run: lein test
+      - run:
+          name: Coverage Test
+          command: lein cloverage --codecov
+          environment:
+            CLOVERAGE_VERSION: 1.2.2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '*'
+
+  report:
+    docker:
+      - image: cimg/base:2023.08
+    steps:
+      - attach_workspace:
+          at: .
+      - codecov/upload:
+          file: target/coverage/codecov.json
+
+workflows:
+  test-coverage-report:
+    jobs:
+      - test-coverage
+      - report:
+          requires:
+            - test-coverage

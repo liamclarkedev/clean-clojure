@@ -1,7 +1,7 @@
 (defproject clean-clojure "1.0.0"
   :description "An example project used as a template for Clean Architecture."
   :main clean-clojure.core/-main
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [environ "1.2.0"]
 
                  ; Dependency

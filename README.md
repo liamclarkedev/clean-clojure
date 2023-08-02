@@ -1,5 +1,8 @@
 # clean-clojure
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/liamclarkedev/clean-clojure/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/liamclarkedev/clean-clojure/tree/main)
+[![codecov](https://codecov.io/gh/liamclarkedev/clean-clojure/branch/main/graph/badge.svg?token=31C1DLQ2A4)](https://codecov.io/gh/liamclarkedev/clean-clojure)
+
 An example Clojure application using Clean Architecture.
 
 - Dependency Injection - [Component](https://github.com/stuartsierra/component).
@@ -46,5 +49,5 @@ lein cloverage
 
 ## Use as a template
 
-1. Find and replace `todo` for the example structure.
+1. Find and replace `todo` for the example feature.
 2. Final and replace `clean-clojure` for the app name.
